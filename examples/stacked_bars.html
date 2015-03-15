@@ -17,15 +17,23 @@
 Morris.Bar({
   element: 'graph',
   data: [
-    {x: '2011 Q1', y: 3, z: 2, a: 3},
-    {x: '2011 Q2', y: 2, z: null, a: 1},
-    {x: '2011 Q3', y: 0, z: 2, a: 4},
-    {x: '2011 Q4', y: 2, z: 4, a: 3}
+    {x: '2011 Q1', y: 1, z: 1, a: 1, b: 0, c: 0},
+    {x: '2012 Q1', y: 1, z: 0, a: 0, b: 0, c: 0},
+
+    {x: '2011 Q4', y: 2, z: 4, a: 3, b: 1, c: 1},
+    {x: '2011 Q2', y: 2, z: null, a: 1, b: 1, c: 1},
+    {x: '2011 Q3', y: 0, z: 2, a: 4, b: 1, c: 1}
   ],
   xkey: 'x',
-  ykeys: ['y', 'z', 'a'],
-  labels: ['Y', 'Z', 'A'],
-  stacked: true
-});
+  ykeys: ['y', 'z', 'a', 'b', 'c'],
+  labels: ['Y', 'Z', 'A', 'T', 'W'],
+  stacked: true,
+  hideHover: true
+}).on('click', function(index, data, x, y, isBar){
+  if(isBar){
+    debugger;
+    alert(data.x);
+  }
+ });
 </pre>
 </body>

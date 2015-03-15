@@ -76,19 +76,20 @@ class Morris.Bar extends Morris.Grid
             twoPrevLabel = null;
 
         xCenter = info.xPos + info.width / 2;
-
-        text = @raphael.text(xCenter, info.yPos, i.toString() + '-' + info.y).attr('opacity', 0);
+        labelText = info.y.toString();
+        
+        text = @raphael.text(xCenter, info.yPos, labelText).attr('opacity', 0);
         box = text.getBBox();
 
         rad = Math.max(box.width, box.height) / 2 + 2;
 
         label = { x: xCenter, y: info.yPos, r: rad, barXPos: info.xPos }
-        if (prevLabel && prevLabels.filter ((l) -> checkLabelsIntersect(label, l)).length)
-            if (prevLabel.x > xCenter)
+        if (prevLabel && (prevLabels.filter ((l) -> checkLabelsIntersect(label, l))).length)
+            if prevLabel.x > xCenter
                 label.x = twoPrevLabel.x - twoPrevLabel.r - label.r;
             else
                 label.x = twoPrevLabel.x + twoPrevLabel.r + label.r;
-
+        
         twoPrevLabel = prevLabel;
         prevLabel = label;
         prevLabels.push(label);
@@ -97,10 +98,10 @@ class Morris.Bar extends Morris.Grid
 
         @raphael.circle(label.x, label.y, label.r).attr({ fill: 'white', stroke: info.barColor, 'stroke-width': 1 });
 
-        @raphael.text(label.x, label.y, i.toString() + '-' + info.y);
+        @raphael.text(label.x, label.y, labelText);
 
   checkLabelsIntersect = (labelA, labelB) ->
-    distance = Math.sqrt((labelA.x - labelB.x) ^ 2 + (labelA.y - labelB.y) ^ 2);
+    distance = Math.sqrt(Math.pow(labelA.x - labelB.x, 2) + Math.pow(labelA.y - labelB.y, 2));
     return Number.isNaN(distance) || labelA.r + labelB.r > distance;
         
   # draw the x-axis labels
@@ -210,20 +211,20 @@ class Morris.Bar extends Morris.Grid
 
           if @options.verticalGridCondition and @options.verticalGridCondition(row.x)
             if not @options.horizontal
-              @drawBar(@xStart + idx * groupWidth, @yEnd, groupWidth, @ySize, @options.verticalGridColor, @options.verticalGridOpacity, @options.barRadius)
+              @drawBar(@xStart + idx * groupWidth, @yEnd, groupWidth, @ySize, @options.verticalGridColor, @options.verticalGridOpacity, @options.barRadius, row.y[sidx])
             else
-              @drawBar(@yStart, @xStart + idx * groupWidth, @ySize, groupWidth, @options.verticalGridColor, @options.verticalGridOpacity, @options.barRadius)
+              @drawBar(@yStart, @xStart + idx * groupWidth, @ySize, groupWidth, @options.verticalGridColor, @options.verticalGridOpacity, @options.barRadius, row.y[sidx])
 
 
           top -= lastTop if @options.stacked
           if not @options.horizontal
             lastTop += size
             @drawBar(left, top, barWidth, size, @colorFor(row, sidx, 'bar'),
-                @options.barOpacity, @options.barRadius)
+                @options.barOpacity, @options.barRadius, row.y[sidx])
           else
             lastTop -= size
             @drawBar(top, left, size, barWidth, @colorFor(row, sidx, 'bar'),
-                @options.barOpacity, @options.barRadius)
+                @options.barOpacity, @options.barRadius, row.y[sidx])
 
             if @options.inBarValue and
                 barWidth > @options.gridTextSize + 2*@options.inBarValueMinTopMargin
@@ -322,7 +323,8 @@ class Morris.Bar extends Morris.Grid
       y = @top + (index + 0.5) * @height / @data.length
       [content, x, y, true]
 
-  drawBar: (xPos, yPos, width, height, barColor, opacity, radiusArray) ->
+  drawBar: (xPos, yPos, width, height, barColor, opacity, radiusArray, y) ->
+    @barInfo.push({ xPos: xPos, yPos: yPos, width: width, height: height, barColor: barColor, y: y });
     maxRadius = Math.max(radiusArray...)
     if maxRadius == 0 or maxRadius > height
       path = @raphael.rect(xPos, yPos, width, height)
