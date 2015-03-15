@@ -56,9 +56,53 @@ class Morris.Bar extends Morris.Grid
   # Draws the bar chart.
   #
   draw: ->
+    @barInfo = []
     @drawXAxis() if @options.axes in [true, 'both', 'x']
-    @drawSeries()
+    s = @drawSeries()
+    @drawSeriesLabels();
+    return s;
+        
+  drawSeriesLabels: ->
+      prevLabels = [];
+      prevLabel = null;
+      twoPrevLabel = null;
 
+      for i in [0...@barInfo.length]
+        info = @barInfo[i];
+
+        if (prevLabel && prevLabel.barXPos != info.xPos)
+            prevLabels = [];
+            prevLabel = null;
+            twoPrevLabel = null;
+
+        xCenter = info.xPos + info.width / 2;
+
+        text = @raphael.text(xCenter, info.yPos, i.toString() + '-' + info.y).attr('opacity', 0);
+        box = text.getBBox();
+
+        rad = Math.max(box.width, box.height) / 2 + 2;
+
+        label = { x: xCenter, y: info.yPos, r: rad, barXPos: info.xPos }
+        if (prevLabel && prevLabels.filter ((l) -> checkLabelsIntersect(label, l)).length)
+            if (prevLabel.x > xCenter)
+                label.x = twoPrevLabel.x - twoPrevLabel.r - label.r;
+            else
+                label.x = twoPrevLabel.x + twoPrevLabel.r + label.r;
+
+        twoPrevLabel = prevLabel;
+        prevLabel = label;
+        prevLabels.push(label);
+
+        twoPrevLabel = twoPrevLabel || label;
+
+        @raphael.circle(label.x, label.y, label.r).attr({ fill: 'white', stroke: info.barColor, 'stroke-width': 1 });
+
+        @raphael.text(label.x, label.y, i.toString() + '-' + info.y);
+
+  checkLabelsIntersect = (labelA, labelB) ->
+    distance = Math.sqrt((labelA.x - labelB.x) ^ 2 + (labelA.y - labelB.y) ^ 2);
+    return Number.isNaN(distance) || labelA.r + labelB.r > distance;
+        
   # draw the x-axis labels
   #
   # @private
