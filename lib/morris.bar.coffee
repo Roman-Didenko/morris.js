@@ -102,7 +102,7 @@ class Morris.Bar extends Morris.Grid
 
   checkLabelsIntersect = (labelA, labelB) ->
     distance = Math.sqrt(Math.pow(labelA.x - labelB.x, 2) + Math.pow(labelA.y - labelB.y, 2));
-    return Number.isNaN(distance) || labelA.r + labelB.r > distance;
+    return distance !== distance || labelA.r + labelB.r > distance;
         
   # draw the x-axis labels
   #

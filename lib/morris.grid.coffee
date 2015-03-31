@@ -257,7 +257,8 @@ class Morris.Grid extends Morris.EventEmitter
 
   autoGridLines: (ymin, ymax, nlines) ->
     span = ymax - ymin
-    unit = Math.ceil(span / nlines);
+    ymag = Math.floor(Math.log(span) / Math.log(10))
+    unit = Math.pow(10, ymag)
 
     # calculate initial grid min and max values
     gmin = Math.floor(ymin / unit) * unit
